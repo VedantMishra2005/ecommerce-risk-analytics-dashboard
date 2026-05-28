@@ -1,0 +1,725 @@
+<style>
+:root {
+  --dash-bg: #0f1117;
+  --dash-surface: #181c27;
+  --dash-card: #1e2335;
+  --dash-border: rgba(99,120,255,0.18);
+  --dash-accent: #6378ff;
+  --dash-cyan: #22d3ee;
+  --dash-purple: #a78bfa;
+  --dash-green: #34d399;
+  --dash-amber: #fbbf24;
+  --dash-red: #f87171;
+  --dash-text: #e2e8f0;
+  --dash-muted: #94a3b8;
+  --dash-dim: #475569;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+#dash-root { background: var(--dash-bg); color: var(--dash-text); font-family: 'DM Sans', system-ui, sans-serif; min-height: 600px; border-radius: 12px; overflow: hidden; }
+.dash-nav { display: flex; align-items: center; gap: 4px; background: var(--dash-surface); border-bottom: 1px solid var(--dash-border); padding: 0 16px; height: 48px; }
+.dash-logo { font-size: 13px; font-weight: 600; color: var(--dash-accent); margin-right: 12px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+.dash-logo i { font-size: 16px; }
+.nav-btn { background: transparent; border: none; color: var(--dash-muted); font-size: 12px; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.nav-btn:hover { color: var(--dash-text); background: rgba(99,120,255,0.1); }
+.nav-btn.active { color: #fff; background: var(--dash-accent); }
+.dash-page { display: none; padding: 16px; gap: 12px; }
+.dash-page.active { display: flex; flex-direction: column; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.kpi-card { background: var(--dash-card); border: 1px solid var(--dash-border); border-radius: 10px; padding: 14px 16px; position: relative; overflow: hidden; }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--kpi-color, var(--dash-accent)); }
+.kpi-label { font-size: 11px; color: var(--dash-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.kpi-value { font-size: 22px; font-weight: 700; color: var(--dash-text); line-height: 1; }
+.kpi-sub { font-size: 11px; margin-top: 4px; }
+.kpi-sub.up { color: var(--dash-green); }
+.kpi-sub.down { color: var(--dash-red); }
+.kpi-sub.neu { color: var(--dash-muted); }
+.charts-row { display: grid; gap: 12px; }
+.charts-2 { grid-template-columns: 1fr 1fr; }
+.charts-3 { grid-template-columns: 1fr 1fr 1fr; }
+.charts-13 { grid-template-columns: 1fr 2fr; }
+.chart-card { background: var(--dash-card); border: 1px solid var(--dash-border); border-radius: 10px; padding: 14px; }
+.chart-title { font-size: 12px; font-weight: 600; color: var(--dash-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.chart-title i { color: var(--dash-accent); font-size: 14px; }
+.insight-card { background: linear-gradient(135deg, rgba(99,120,255,0.15), rgba(167,139,250,0.1)); border: 1px solid rgba(99,120,255,0.3); border-radius: 10px; padding: 12px 14px; }
+.insight-title { font-size: 11px; font-weight: 600; color: var(--dash-accent); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 6px; }
+.insight-text { font-size: 12px; color: var(--dash-text); line-height: 1.5; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; }
+.badge-red { background: rgba(248,113,113,0.2); color: var(--dash-red); border: 1px solid rgba(248,113,113,0.3); }
+.badge-green { background: rgba(52,211,153,0.15); color: var(--dash-green); border: 1px solid rgba(52,211,153,0.25); }
+.badge-amber { background: rgba(251,191,36,0.15); color: var(--dash-amber); border: 1px solid rgba(251,191,36,0.25); }
+.badge-blue { background: rgba(34,211,238,0.12); color: var(--dash-cyan); border: 1px solid rgba(34,211,238,0.25); }
+.risk-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.risk-table th { color: var(--dash-muted); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--dash-border); text-align: left; }
+.risk-table td { padding: 7px 8px; border-bottom: 1px solid rgba(99,120,255,0.08); color: var(--dash-text); }
+.risk-table tr:hover td { background: rgba(99,120,255,0.05); }
+.gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.progress-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; }
+.section-header { font-size: 11px; font-weight: 600; color: var(--dash-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.alert-card { border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; display: flex; gap: 8px; align-items: flex-start; }
+.alert-card i { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+.alert-card p { font-size: 11px; line-height: 1.4; }
+.alert-high { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: var(--dash-red); }
+.alert-med { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25); color: var(--dash-amber); }
+.alert-low { background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.2); color: var(--dash-cyan); }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(99,120,255,0.07); font-size: 12px; }
+.stat-label { color: var(--dash-muted); }
+.stat-val { font-weight: 600; color: var(--dash-text); }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" rel="stylesheet">
+
+<div id="dash-root">
+  <div class="dash-nav">
+    <div class="dash-logo"><i class="ti ti-shield-bolt" aria-hidden="true"></i>RiskIQ Analytics</div>
+    <button class="nav-btn active" onclick="showPage(0)">📊 Executive</button>
+    <button class="nav-btn" onclick="showPage(1)">🛡️ Fraud</button>
+    <button class="nav-btn" onclick="showPage(2)">↩️ Returns</button>
+    <button class="nav-btn" onclick="showPage(3)">👥 Customers</button>
+    <button class="nav-btn" onclick="showPage(4)">🤖 AI Risk</button>
+  </div>
+
+  <!-- PAGE 1: EXECUTIVE -->
+  <div class="dash-page active" id="page-0">
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--kpi-color:#6378ff">
+        <div class="kpi-label">Total Orders</div>
+        <div class="kpi-value">12,000</div>
+        <div class="kpi-sub neu">3 years · 2023–2025</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#22d3ee">
+        <div class="kpi-label">Total Revenue</div>
+        <div class="kpi-value">€732.6K</div>
+        <div class="kpi-sub up">↑ Avg €61.1 / order</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#f87171">
+        <div class="kpi-label">Fraud Orders</div>
+        <div class="kpi-value">447</div>
+        <div class="kpi-sub down">↑ 3.73% fraud rate</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#fbbf24">
+        <div class="kpi-label">Returned Orders</div>
+        <div class="kpi-value">1,112</div>
+        <div class="kpi-sub down">↑ 9.27% return rate</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#a78bfa">
+        <div class="kpi-label">Avg Order Value</div>
+        <div class="kpi-value">€61.05</div>
+        <div class="kpi-sub up">↑ Per transaction</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#34d399">
+        <div class="kpi-label">Avg Review Score</div>
+        <div class="kpi-value">4.41</div>
+        <div class="kpi-sub up">↑ Out of 5.0</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#f87171">
+        <div class="kpi-label">High Risk IP</div>
+        <div class="kpi-value">530</div>
+        <div class="kpi-sub down">4.4% of orders</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#fbbf24">
+        <div class="kpi-label">Address Mismatch</div>
+        <div class="kpi-value">583</div>
+        <div class="kpi-sub down">4.9% of orders</div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-2">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-trending-up" aria-hidden="true"></i>Monthly Orders Trend</div>
+        <div style="position:relative;height:200px"><canvas id="c-monthly-orders" role="img" aria-label="Monthly orders trend from 2023 to 2025, ranging 280-377 orders per month">Monthly order data</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-currency-euro" aria-hidden="true"></i>Revenue Trend</div>
+        <div style="position:relative;height:200px"><canvas id="c-revenue" role="img" aria-label="Monthly revenue trend 2023-2025">Monthly revenue</canvas></div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-3">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-device-mobile" aria-hidden="true"></i>Device Distribution</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+          <div style="position:relative;height:130px;width:130px;flex-shrink:0"><canvas id="c-device" role="img" aria-label="Device type: Mobile 61%, Desktop 32%, Tablet 7%">Mobile 61%</canvas></div>
+          <div style="font-size:11px;color:var(--dash-muted)">
+            <div style="margin-bottom:6px"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#6378ff;margin-right:5px"></span>Mobile — 7,354 (61%)</div>
+            <div style="margin-bottom:6px"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#22d3ee;margin-right:5px"></span>Desktop — 3,813 (32%)</div>
+            <div><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#a78bfa;margin-right:5px"></span>Tablet — 833 (7%)</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-traffic-lights" aria-hidden="true"></i>Traffic Sources</div>
+        <div style="position:relative;height:160px"><canvas id="c-traffic" role="img" aria-label="Traffic source breakdown">Traffic sources</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-tag" aria-hidden="true"></i>Product Categories</div>
+        <div style="position:relative;height:160px"><canvas id="c-categories" role="img" aria-label="Product category breakdown">Categories</canvas></div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-2">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-map-pin" aria-hidden="true"></i>Orders by Country</div>
+        <div style="position:relative;height:170px"><canvas id="c-country-orders" role="img" aria-label="Orders by European country">Country orders</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-shield-check" aria-hidden="true"></i>Risk Label Distribution</div>
+        <div style="display:flex;align-items:center;gap:16px;margin-top:4px">
+          <div style="position:relative;height:130px;width:130px;flex-shrink:0"><canvas id="c-risk-dist" role="img" aria-label="Risk: Normal 87%, Return Risk 9%, Fraud Risk 4%">Risk distribution</canvas></div>
+          <div>
+            <div style="margin-bottom:10px">
+              <div style="font-size:11px;color:var(--dash-muted);margin-bottom:3px">Normal Orders</div>
+              <div class="progress-bar" style="width:140px"><div class="progress-fill" style="width:87%;background:var(--dash-green)"></div></div>
+              <div style="font-size:12px;color:var(--dash-green);font-weight:600;margin-top:2px">10,482 — 87.4%</div>
+            </div>
+            <div style="margin-bottom:10px">
+              <div style="font-size:11px;color:var(--dash-muted);margin-bottom:3px">Return Risk</div>
+              <div class="progress-bar" style="width:140px"><div class="progress-fill" style="width:9%;background:var(--dash-amber)"></div></div>
+              <div style="font-size:12px;color:var(--dash-amber);font-weight:600;margin-top:2px">1,071 — 8.9%</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--dash-muted);margin-bottom:3px">Fraud Risk</div>
+              <div class="progress-bar" style="width:140px"><div class="progress-fill" style="width:4%;background:var(--dash-red)"></div></div>
+              <div style="font-size:12px;color:var(--dash-red);font-weight:600;margin-top:2px">447 — 3.7%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: FRAUD -->
+  <div class="dash-page" id="page-1">
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--kpi-color:#f87171">
+        <div class="kpi-label">Total Fraud Orders</div>
+        <div class="kpi-value">447</div>
+        <div class="kpi-sub down">↑ Critical risk</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#f87171">
+        <div class="kpi-label">Fraud Rate</div>
+        <div class="kpi-value">3.73%</div>
+        <div class="kpi-sub down">Industry avg ~2%</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#fbbf24">
+        <div class="kpi-label">High Risk IP</div>
+        <div class="kpi-value">530</div>
+        <div class="kpi-sub down">4.4% of all orders</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#fbbf24">
+        <div class="kpi-label">Address Mismatch</div>
+        <div class="kpi-value">583</div>
+        <div class="kpi-sub down">4.9% of all orders</div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-2">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-credit-card" aria-hidden="true"></i>Fraud by Payment Method</div>
+        <div style="position:relative;height:200px"><canvas id="c-fraud-pm" role="img" aria-label="Fraud count per payment method">Fraud by payment</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-map" aria-hidden="true"></i>Fraud by Country</div>
+        <div style="position:relative;height:200px"><canvas id="c-fraud-country" role="img" aria-label="Fraud rate by country">Fraud by country</canvas></div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-2">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-chart-line" aria-hidden="true"></i>Fraud Trend Over Time</div>
+        <div style="position:relative;height:180px"><canvas id="c-fraud-trend" role="img" aria-label="Monthly fraud count over time">Fraud trend</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-antenna" aria-hidden="true"></i>Fraud by Traffic Source</div>
+        <div style="position:relative;height:180px"><canvas id="c-fraud-traffic" role="img" aria-label="Fraud rate by traffic source">Fraud by traffic</canvas></div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-13">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-alert-triangle" aria-hidden="true"></i>AI Risk Alerts</div>
+        <div class="alert-card alert-high">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <p><strong>Gift Cards</strong> show the highest fraud rate at 8.2% — 3× the platform average. Immediate rule-tightening recommended.</p>
+        </div>
+        <div class="alert-card alert-med">
+          <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <p><strong>Paid Ads traffic</strong> drives 35% of all fraud despite representing only 22% of orders — indicating bot-driven click fraud.</p>
+        </div>
+        <div class="alert-card alert-low">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          <p><strong>Netherlands</strong> leads fraud volume (126 cases) correlating with highest order volume — proportional rate is stable at ~3.7%.</p>
+        </div>
+        <div style="margin-top:12px">
+          <div class="section-header">Risk Score Components</div>
+          <div class="stat-row"><span class="stat-label">High Risk IP weight</span><span class="stat-val" style="color:var(--dash-red)">30 pts</span></div>
+          <div class="stat-row"><span class="stat-label">Address Mismatch weight</span><span class="stat-val" style="color:var(--dash-amber)">25 pts</span></div>
+          <div class="stat-row"><span class="stat-label">Late Delivery weight</span><span class="stat-val" style="color:var(--dash-cyan)">20 pts</span></div>
+          <div class="stat-row"><span class="stat-label">Orders at Risk Score ≥30</span><span class="stat-val" style="color:var(--dash-red)">575</span></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-table" aria-hidden="true"></i>Payment Method Fraud Breakdown</div>
+        <table class="risk-table">
+          <thead><tr><th>Payment Method</th><th>Total</th><th>Fraud</th><th>Fraud %</th><th>Risk</th></tr></thead>
+          <tbody>
+            <tr><td>Gift Card</td><td>475</td><td>39</td><td>8.21%</td><td><span class="badge badge-red">High</span></td></tr>
+            <tr><td>Klarna</td><td>1,510</td><td>57</td><td>3.77%</td><td><span class="badge badge-amber">Medium</span></td></tr>
+            <tr><td>Credit Card</td><td>3,984</td><td>129</td><td>3.24%</td><td><span class="badge badge-amber">Medium</span></td></tr>
+            <tr><td>PayPal</td><td>2,253</td><td>90</td><td>3.99%</td><td><span class="badge badge-amber">Medium</span></td></tr>
+            <tr><td>Debit Card</td><td>2,692</td><td>105</td><td>3.90%</td><td><span class="badge badge-amber">Medium</span></td></tr>
+            <tr><td>Bank Transfer</td><td>1,086</td><td>27</td><td>2.49%</td><td><span class="badge badge-green">Low</span></td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px">
+          <div class="chart-title"><i class="ti ti-robot" aria-hidden="true"></i>AI Fraud Severity Gauge</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px">
+            <div style="text-align:center;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:8px;padding:10px">
+              <div style="font-size:18px;font-weight:700;color:var(--dash-red)">HIGH</div>
+              <div style="font-size:10px;color:var(--dash-muted);margin-top:2px">Gift Card Risk</div>
+            </div>
+            <div style="text-align:center;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:10px">
+              <div style="font-size:18px;font-weight:700;color:var(--dash-amber)">MED</div>
+              <div style="font-size:10px;color:var(--dash-muted);margin-top:2px">Overall Fraud</div>
+            </div>
+            <div style="text-align:center;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);border-radius:8px;padding:10px">
+              <div style="font-size:18px;font-weight:700;color:var(--dash-green)">LOW</div>
+              <div style="font-size:10px;color:var(--dash-muted);margin-top:2px">Bank Transfer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: RETURNS -->
+  <div class="dash-page" id="page-2">
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--kpi-color:#fbbf24">
+        <div class="kpi-label">Total Returns</div>
+        <div class="kpi-value">1,112</div>
+        <div class="kpi-sub down">9.27% return rate</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#f87171">
+        <div class="kpi-label">Fashion Returns</div>
+        <div class="kpi-value">276</div>
+        <div class="kpi-sub down">16.2% category rate</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#f87171">
+        <div class="kpi-label">Electronics Returns</div>
+        <div class="kpi-value">230</div>
+        <div class="kpi-sub down">11.5% category rate</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#34d399">
+        <div class="kpi-label">Pet Supplies Returns</div>
+        <div class="kpi-value">50</div>
+        <div class="kpi-sub up">5.6% — lowest rate</div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-2">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-package" aria-hidden="true"></i>Returns by Product Category</div>
+        <div style="position:relative;height:200px"><canvas id="c-ret-cat" role="img" aria-label="Return count and rate by product category">Returns by category</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-star" aria-hidden="true"></i>Review Score vs Return Rate</div>
+        <div style="position:relative;height:200px"><canvas id="c-review-ret" role="img" aria-label="Return rate at each review score level">Review vs returns</canvas></div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-2">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-chart-bar" aria-hidden="true"></i>Monthly Return Trend</div>
+        <div style="position:relative;height:180px"><canvas id="c-ret-trend" role="img" aria-label="Monthly return count 2023-2025">Return trend</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-brain" aria-hidden="true"></i>Return Risk Drivers Analysis</div>
+        <div style="margin-top:4px">
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+              <span style="color:var(--dash-muted)">Low review score (≤3)</span>
+              <span style="color:var(--dash-red);font-weight:600">~70% return rate</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--dash-red)"></div></div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+              <span style="color:var(--dash-muted)">Fashion category</span>
+              <span style="color:var(--dash-amber);font-weight:600">16.2% return rate</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:16%;background:var(--dash-amber)"></div></div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+              <span style="color:var(--dash-muted)">Electronics category</span>
+              <span style="color:var(--dash-amber);font-weight:600">11.5% return rate</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:11%;background:var(--dash-amber)"></div></div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+              <span style="color:var(--dash-muted)">Paid Ads orders returned</span>
+              <span style="color:var(--dash-cyan);font-weight:600">8.6% return rate</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:9%;background:var(--dash-cyan)"></div></div>
+          </div>
+          <div class="insight-card" style="margin-top:12px">
+            <div class="insight-title">AI Insight</div>
+            <div class="insight-text">Customers with review scores ≤3 return items at 96% rate — indicating severe product-expectation mismatch. Fashion returns are 3× higher than Pet Supplies, suggesting sizing/fit issues.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 4: CUSTOMERS -->
+  <div class="dash-page" id="page-3">
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--kpi-color:#6378ff">
+        <div class="kpi-label">Mobile Customers</div>
+        <div class="kpi-value">61.3%</div>
+        <div class="kpi-sub up">Primary device</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#22d3ee">
+        <div class="kpi-label">Organic Reach</div>
+        <div class="kpi-value">2,950</div>
+        <div class="kpi-sub up">Top traffic source</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#34d399">
+        <div class="kpi-label">Top Country</div>
+        <div class="kpi-value">Netherlands</div>
+        <div class="kpi-sub up">3,388 orders — 28%</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#a78bfa">
+        <div class="kpi-label">Avg Review</div>
+        <div class="kpi-value">4.41 / 5</div>
+        <div class="kpi-sub up">High satisfaction</div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-2">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-map-2" aria-hidden="true"></i>Country-wise Revenue</div>
+        <div style="position:relative;height:200px"><canvas id="c-country-rev" role="img" aria-label="Revenue by country">Country revenue</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-arrows-split" aria-hidden="true"></i>Traffic Source Performance</div>
+        <div style="position:relative;height:200px"><canvas id="c-traffic-perf" role="img" aria-label="Orders, fraud and return counts by traffic source">Traffic performance</canvas></div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-3">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-device-laptop" aria-hidden="true"></i>AOV by Device</div>
+        <div style="margin-top:8px">
+          <div class="stat-row">
+            <span class="stat-label"><i class="ti ti-device-mobile" style="font-size:13px;vertical-align:-2px;margin-right:4px" aria-hidden="true"></i>Mobile</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="progress-bar" style="width:80px"><div class="progress-fill" style="width:78%;background:var(--dash-accent)"></div></div>
+              <span class="stat-val">€61.0</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label"><i class="ti ti-device-desktop" style="font-size:13px;vertical-align:-2px;margin-right:4px" aria-hidden="true"></i>Desktop</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="progress-bar" style="width:80px"><div class="progress-fill" style="width:82%;background:var(--dash-cyan)"></div></div>
+              <span class="stat-val">€62.4</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label"><i class="ti ti-device-tablet" style="font-size:13px;vertical-align:-2px;margin-right:4px" aria-hidden="true"></i>Tablet</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="progress-bar" style="width:80px"><div class="progress-fill" style="width:75%;background:var(--dash-purple)"></div></div>
+              <span class="stat-val">€59.1</span>
+            </div>
+          </div>
+          <div class="insight-card" style="margin-top:12px">
+            <div class="insight-title">Insight</div>
+            <div class="insight-text">Desktop users spend ~2% more per order than mobile users. Optimizing desktop checkout could lift AOV.</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-users" aria-hidden="true"></i>Customer Segments</div>
+        <div style="margin-top:6px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:rgba(99,120,255,0.1);border:1px solid rgba(99,120,255,0.25);border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:18px;font-weight:700;color:var(--dash-accent)">8,852</div>
+              <div style="font-size:10px;color:var(--dash-muted);margin-top:2px">Returning customers</div>
+              <div style="font-size:10px;color:var(--dash-accent)">prev. orders > 0</div>
+            </div>
+            <div style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.25);border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:18px;font-weight:700;color:var(--dash-cyan)">3,148</div>
+              <div style="font-size:10px;color:var(--dash-muted);margin-top:2px">New customers</div>
+              <div style="font-size:10px;color:var(--dash-cyan)">est. first order</div>
+            </div>
+            <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:18px;font-weight:700;color:var(--dash-amber)">€350</div>
+              <div style="font-size:10px;color:var(--dash-muted);margin-top:2px">Max order value</div>
+              <div style="font-size:10px;color:var(--dash-amber)">High-value segment</div>
+            </div>
+            <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.25);border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:18px;font-weight:700;color:var(--dash-green)">4.41</div>
+              <div style="font-size:10px;color:var(--dash-muted);margin-top:2px">Avg review score</div>
+              <div style="font-size:10px;color:var(--dash-green)">High satisfaction</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-repeat" aria-hidden="true"></i>Loyalty Analysis</div>
+        <div style="position:relative;height:160px"><canvas id="c-loyalty" role="img" aria-label="Loyalty tier distribution by previous orders">Loyalty</canvas></div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <span style="font-size:10px;color:var(--dash-muted)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#6378ff;margin-right:4px"></span>New (0)</span>
+          <span style="font-size:10px;color:var(--dash-muted)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#22d3ee;margin-right:4px"></span>Growing (1-5)</span>
+          <span style="font-size:10px;color:var(--dash-muted)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#34d399;margin-right:4px"></span>Loyal (6-10)</span>
+          <span style="font-size:10px;color:var(--dash-muted)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#a78bfa;margin-right:4px"></span>VIP (>10)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 5: AI RISK -->
+  <div class="dash-page" id="page-4">
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--kpi-color:#a78bfa">
+        <div class="kpi-label">AI Risk Index</div>
+        <div class="kpi-value">3.73</div>
+        <div class="kpi-sub neu">Composite fraud score</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#f87171">
+        <div class="kpi-label">Max Risk Score</div>
+        <div class="kpi-value">75 pts</div>
+        <div class="kpi-sub down">High Risk IP + Mismatch</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#22d3ee">
+        <div class="kpi-label">Predicted Fraud</div>
+        <div class="kpi-value">447</div>
+        <div class="kpi-sub neu">Confirmed fraud orders</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#fbbf24">
+        <div class="kpi-label">Return Risk Orders</div>
+        <div class="kpi-value">1,071</div>
+        <div class="kpi-sub neu">Flagged for return risk</div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-2">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-chart-dots" aria-hidden="true"></i>AI Risk Classification Distribution</div>
+        <div style="position:relative;height:200px"><canvas id="c-ai-risk" role="img" aria-label="Risk classification: Normal, Return Risk, Fraud Risk distribution">AI risk</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-radar" aria-hidden="true"></i>Risk Score Heatmap (Bin Distribution)</div>
+        <div style="position:relative;height:200px"><canvas id="c-risk-heat" role="img" aria-label="Risk score distribution by points bin">Risk heatmap</canvas></div>
+      </div>
+    </div>
+
+    <div class="charts-row charts-13">
+      <div>
+        <div class="chart-card" style="margin-bottom:12px">
+          <div class="chart-title"><i class="ti ti-cpu" aria-hidden="true"></i>AI Risk Monitor</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:8px;padding:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;color:var(--dash-muted)">Fraud Risk Score</span>
+                <span style="font-size:13px;font-weight:700;color:var(--dash-red)">3.73%</span>
+              </div>
+              <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:37%;background:var(--dash-red)"></div></div>
+            </div>
+            <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;color:var(--dash-muted)">Return Risk Score</span>
+                <span style="font-size:13px;font-weight:700;color:var(--dash-amber)">8.93%</span>
+              </div>
+              <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:45%;background:var(--dash-amber)"></div></div>
+            </div>
+            <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;color:var(--dash-muted)">Normal Order Rate</span>
+                <span style="font-size:13px;font-weight:700;color:var(--dash-green)">87.4%</span>
+              </div>
+              <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:87%;background:var(--dash-green)"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title"><i class="ti ti-bulb" aria-hidden="true"></i>Smart Recommendations</div>
+          <div class="alert-card alert-high" style="margin-bottom:6px">
+            <i class="ti ti-ban" aria-hidden="true"></i>
+            <p>Block or add friction for Gift Card payments — 8.2% fraud rate is 2× the next highest method.</p>
+          </div>
+          <div class="alert-card alert-med">
+            <i class="ti ti-filter" aria-hidden="true"></i>
+            <p>Flag Fashion + Electronics orders with low review history — responsible for 46% of returns.</p>
+          </div>
+          <div class="alert-card alert-low">
+            <i class="ti ti-chart-line" aria-hidden="true"></i>
+            <p>Deploy real-time IP reputation scoring for Paid Ads channel — highest fraud-to-order ratio.</p>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-table-options" aria-hidden="true"></i>Top Risk Factors — Combined Score Analysis</div>
+        <table class="risk-table">
+          <thead><tr><th>Risk Factor</th><th>Count</th><th>% Orders</th><th>Fraud Impact</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>High Risk IP</td><td>530</td><td>4.42%</td><td>30 pts</td><td><span class="badge badge-red">Critical</span></td></tr>
+            <tr><td>Address Mismatch</td><td>583</td><td>4.86%</td><td>25 pts</td><td><span class="badge badge-red">Critical</span></td></tr>
+            <tr><td>IP + Mismatch</td><td>~108</td><td>~0.9%</td><td>55 pts</td><td><span class="badge badge-red">Very High</span></td></tr>
+            <tr><td>Return Risk Label</td><td>1,071</td><td>8.93%</td><td>Low review ≤3</td><td><span class="badge badge-amber">High</span></td></tr>
+            <tr><td>Gift Card Payments</td><td>475</td><td>3.96%</td><td>8.21% fraud</td><td><span class="badge badge-amber">High</span></td></tr>
+            <tr><td>Paid Ads Traffic</td><td>2,648</td><td>22.07%</td><td>5.97% fraud rate</td><td><span class="badge badge-amber">Medium</span></td></tr>
+            <tr><td>Fashion Returns</td><td>276</td><td>2.30%</td><td>16.2% category</td><td><span class="badge badge-amber">Medium</span></td></tr>
+            <tr><td>Bank Transfer</td><td>1,086</td><td>9.05%</td><td>2.49% fraud rate</td><td><span class="badge badge-green">Low</span></td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px">
+          <div class="insight-card">
+            <div class="insight-title">Predictive Intelligence</div>
+            <div class="insight-text">The combined AI Risk Score formula (IP×30 + Mismatch×25 + LateDelivery×20) correctly identifies orders with ≥55 pts as having near-certain fraud probability. Only 1 order scored the maximum 75 points. 575 orders carry a score ≥30, warranting automated review queue assignment.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function showPage(idx) {
+  document.querySelectorAll('.dash-page').forEach((p,i) => p.classList.toggle('active', i===idx));
+  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+}
+
+const MONTHLY = {"2023-01":{"orders":350,"revenue":22123,"fraud":8,"returned":29},"2023-02":{"orders":280,"revenue":17824,"fraud":8,"returned":20},"2023-03":{"orders":316,"revenue":18399,"fraud":9,"returned":21},"2023-04":{"orders":304,"revenue":18306,"fraud":11,"returned":36},"2023-05":{"orders":336,"revenue":20200,"fraud":6,"returned":31},"2023-06":{"orders":315,"revenue":18659,"fraud":9,"returned":22},"2023-07":{"orders":327,"revenue":20024,"fraud":16,"returned":34},"2023-08":{"orders":343,"revenue":20119,"fraud":13,"returned":29},"2023-09":{"orders":333,"revenue":20958,"fraud":14,"returned":34},"2023-10":{"orders":313,"revenue":19019,"fraud":11,"returned":32},"2023-11":{"orders":320,"revenue":19146,"fraud":13,"returned":31},"2023-12":{"orders":318,"revenue":18411,"fraud":11,"returned":34},"2024-01":{"orders":359,"revenue":22603,"fraud":15,"returned":37},"2024-02":{"orders":295,"revenue":17027,"fraud":16,"returned":26},"2024-03":{"orders":337,"revenue":21267,"fraud":10,"returned":24},"2024-04":{"orders":326,"revenue":19985,"fraud":13,"returned":30},"2024-05":{"orders":343,"revenue":21455,"fraud":18,"returned":30},"2024-06":{"orders":333,"revenue":22150,"fraud":11,"returned":34},"2024-07":{"orders":344,"revenue":20893,"fraud":12,"returned":31},"2024-08":{"orders":348,"revenue":21338,"fraud":12,"returned":29},"2024-09":{"orders":342,"revenue":19875,"fraud":9,"returned":41},"2024-10":{"orders":329,"revenue":20375,"fraud":18,"returned":21},"2024-11":{"orders":332,"revenue":20283,"fraud":12,"returned":31},"2024-12":{"orders":346,"revenue":21548,"fraud":8,"returned":37},"2025-01":{"orders":328,"revenue":21005,"fraud":11,"returned":18},"2025-02":{"orders":298,"revenue":18359,"fraud":14,"returned":27},"2025-03":{"orders":351,"revenue":21086,"fraud":14,"returned":30},"2025-04":{"orders":377,"revenue":23166,"fraud":14,"returned":35},"2025-05":{"orders":351,"revenue":21801,"fraud":17,"returned":31},"2025-06":{"orders":338,"revenue":20676,"fraud":14,"returned":43},"2025-07":{"orders":373,"revenue":21045,"fraud":11,"returned":37},"2025-08":{"orders":336,"revenue":19539,"fraud":15,"returned":28},"2025-09":{"orders":348,"revenue":22026,"fraud":13,"returned":40},"2025-10":{"orders":322,"revenue":19544,"fraud":16,"returned":30},"2025-11":{"orders":326,"revenue":19744,"fraud":13,"returned":28},"2025-12":{"orders":363,"revenue":22661,"fraud":12,"returned":41}};
+
+const months = Object.keys(MONTHLY);
+const labels36 = months.map(m => { const [y,mo] = m.split('-'); return (mo==='01'||mo==='07') ? y+'/'+mo : mo; });
+
+const gridColor = 'rgba(99,120,255,0.12)';
+const textColor = '#94a3b8';
+const baseOpts = { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{ticks:{color:textColor,font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:12},grid:{color:gridColor}},y:{ticks:{color:textColor,font:{size:9}},grid:{color:gridColor}}} };
+
+new Chart(document.getElementById('c-monthly-orders'), {
+  type:'line',
+  data:{labels:labels36, datasets:[{label:'Orders',data:months.map(m=>MONTHLY[m].orders),borderColor:'#6378ff',backgroundColor:'rgba(99,120,255,0.12)',borderWidth:2,pointRadius:0,fill:true,tension:0.4}]},
+  options:{...baseOpts}
+});
+
+new Chart(document.getElementById('c-revenue'), {
+  type:'line',
+  data:{labels:labels36, datasets:[{label:'Revenue',data:months.map(m=>MONTHLY[m].revenue),borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,0.1)',borderWidth:2,pointRadius:0,fill:true,tension:0.4}]},
+  options:{...baseOpts, scales:{...baseOpts.scales, y:{...baseOpts.scales.y, ticks:{...baseOpts.scales.y.ticks, callback:v=>'€'+Math.round(v/1000)+'K'}}}}
+});
+
+new Chart(document.getElementById('c-device'), {
+  type:'doughnut',
+  data:{labels:['Mobile','Desktop','Tablet'],datasets:[{data:[7354,3813,833],backgroundColor:['#6378ff','#22d3ee','#a78bfa'],borderWidth:0}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'70%'}
+});
+
+new Chart(document.getElementById('c-traffic'), {
+  type:'bar',
+  data:{labels:['Organic','Paid Ads','Social','Direct','Market.','Email'], datasets:[{data:[2950,2648,2209,1764,1530,899],backgroundColor:['#6378ff','#f87171','#22d3ee','#34d399','#a78bfa','#fbbf24'],borderRadius:4,borderSkipped:false}]},
+  options:{...baseOpts, plugins:{...baseOpts.plugins}}
+});
+
+new Chart(document.getElementById('c-categories'), {
+  type:'bar',
+  data:{labels:['Home','Electr.','Fashion','Garden','Sports','Beauty','Toys','Pet'], datasets:[{data:[2468,2008,1702,1436,1291,1106,1099,890],backgroundColor:'#6378ff',borderRadius:4}]},
+  options:{...baseOpts}
+});
+
+new Chart(document.getElementById('c-country-orders'), {
+  type:'bar',
+  data:{labels:['Netherlands','Belgium','Germany','France','Spain','Poland','Turkey','Italy'], datasets:[{label:'Orders',data:[3388,1970,1650,1305,1070,862,840,915],backgroundColor:'rgba(99,120,255,0.7)',borderRadius:4}]},
+  options:{...baseOpts}
+});
+
+new Chart(document.getElementById('c-risk-dist'), {
+  type:'doughnut',
+  data:{labels:['Normal','Return Risk','Fraud Risk'],datasets:[{data:[10482,1071,447],backgroundColor:['#34d399','#fbbf24','#f87171'],borderWidth:0}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'68%'}
+});
+
+new Chart(document.getElementById('c-fraud-pm'), {
+  type:'bar',
+  data:{labels:['Gift Card','Klarna','PayPal','Debit Card','Credit Card','Bank Tr.'], datasets:[{label:'Fraud %',data:[8.21,3.77,3.99,3.90,3.24,2.49],backgroundColor:['#f87171','#fbbf24','#fbbf24','#fbbf24','#fbbf24','#34d399'],borderRadius:4}]},
+  options:{...baseOpts, scales:{...baseOpts.scales, y:{...baseOpts.scales.y, ticks:{...baseOpts.scales.y.ticks, callback:v=>v+'%'}}}}
+});
+
+new Chart(document.getElementById('c-fraud-country'), {
+  type:'bar',
+  data:{labels:['Italy','Netherlands','Belgium','France','Spain','Germany','Poland','Turkey'], datasets:[{label:'Fraud Rate %',data:[4.70,3.72,3.30,4.29,3.65,3.45,3.83,3.33],backgroundColor:'rgba(248,113,113,0.7)',borderRadius:4}]},
+  options:{...baseOpts, scales:{...baseOpts.scales, y:{...baseOpts.scales.y, ticks:{...baseOpts.scales.y.ticks, callback:v=>v+'%'}}}}
+});
+
+new Chart(document.getElementById('c-fraud-trend'), {
+  type:'line',
+  data:{labels:labels36, datasets:[{label:'Fraud',data:months.map(m=>MONTHLY[m].fraud),borderColor:'#f87171',backgroundColor:'rgba(248,113,113,0.1)',borderWidth:2,pointRadius:0,fill:true,tension:0.4}]},
+  options:{...baseOpts}
+});
+
+new Chart(document.getElementById('c-fraud-traffic'), {
+  type:'bar',
+  data:{labels:['Paid Ads','Email','Organic','Direct','Social','Market.'], datasets:[{label:'Fraud Rate',data:[5.97,3.12,3.53,2.55,3.35,2.48],backgroundColor:['#f87171','#22d3ee','#fbbf24','#34d399','#a78bfa','#22d3ee'],borderRadius:4}]},
+  options:{...baseOpts, scales:{...baseOpts.scales, y:{...baseOpts.scales.y, ticks:{...baseOpts.scales.y.ticks, callback:v=>v+'%'}}}}
+});
+
+new Chart(document.getElementById('c-ret-cat'), {
+  type:'bar',
+  data:{labels:['Fashion','Electronics','Home','Sports','Garden','Beauty','Toys','Pet'], datasets:[{label:'Returns',data:[276,230,208,107,90,79,72,50],backgroundColor:'rgba(251,191,36,0.75)',borderRadius:4}]},
+  options:{...baseOpts}
+});
+
+new Chart(document.getElementById('c-review-ret'), {
+  type:'bar',
+  data:{labels:['Score 1','Score 2','Score 3','Score 4','Score 5'], datasets:[{label:'Return Rate %',data:[100,95.9,69.3,9.7,0.2],backgroundColor:['#f87171','#f87171','#fbbf24','#6378ff','#34d399'],borderRadius:4}]},
+  options:{...baseOpts, scales:{...baseOpts.scales, y:{...baseOpts.scales.y, max:110, ticks:{...baseOpts.scales.y.ticks, callback:v=>v+'%'}}}}
+});
+
+new Chart(document.getElementById('c-ret-trend'), {
+  type:'line',
+  data:{labels:labels36, datasets:[{label:'Returns',data:months.map(m=>MONTHLY[m].returned),borderColor:'#fbbf24',backgroundColor:'rgba(251,191,36,0.1)',borderWidth:2,pointRadius:0,fill:true,tension:0.4}]},
+  options:{...baseOpts}
+});
+
+new Chart(document.getElementById('c-country-rev'), {
+  type:'bar',
+  data:{labels:['Netherlands','Belgium','Germany','France','Spain','Poland','Turkey','Italy'], datasets:[{label:'Revenue',data:[205838,121110,102808,80181,63910,51459,52729,54607],backgroundColor:'rgba(34,211,238,0.7)',borderRadius:4}]},
+  options:{...baseOpts, scales:{...baseOpts.scales, y:{...baseOpts.scales.y, ticks:{...baseOpts.scales.y.ticks, callback:v=>'€'+Math.round(v/1000)+'K'}}}}
+});
+
+new Chart(document.getElementById('c-traffic-perf'), {
+  type:'bar',
+  data:{labels:['Organic','Paid Ads','Social','Direct','Market.','Email'],
+    datasets:[
+      {label:'Orders',data:[2950,2648,2209,1764,1530,899],backgroundColor:'rgba(99,120,255,0.6)',borderRadius:3},
+      {label:'Fraud',data:[104,158,74,45,38,28],backgroundColor:'rgba(248,113,113,0.7)',borderRadius:3},
+      {label:'Returns',data:[283,229,204,162,144,90],backgroundColor:'rgba(251,191,36,0.65)',borderRadius:3}
+    ]},
+  options:{...baseOpts, plugins:{legend:{display:true, labels:{color:textColor,font:{size:10},boxWidth:10}}}}
+});
+
+new Chart(document.getElementById('c-loyalty'), {
+  type:'doughnut',
+  data:{labels:['New (0)','Growing (1-5)','Loyal (6-10)','VIP (>10)'],datasets:[{data:[1148,7704,2741,407],backgroundColor:['#6378ff','#22d3ee','#34d399','#a78bfa'],borderWidth:0}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'60%'}
+});
+
+new Chart(document.getElementById('c-ai-risk'), {
+  type:'bar',
+  data:{labels:['Normal','Return Risk','Fraud Risk'], datasets:[{data:[10482,1071,447],backgroundColor:['#34d399','#fbbf24','#f87171'],borderRadius:6,borderSkipped:false}]},
+  options:{...baseOpts, plugins:{legend:{display:false}}, scales:{...baseOpts.scales, x:{...baseOpts.scales.x, grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('c-risk-heat'), {
+  type:'bar',
+  data:{labels:['0 pts','1-15 pts','16-30 pts','31-45 pts','46-60 pts','61-75 pts'], datasets:[{data:[10267,1159,475,98,0,1],backgroundColor:['#34d399','#22d3ee','#6378ff','#fbbf24','#f87171','#f87171'],borderRadius:4}]},
+  options:{...baseOpts, scales:{...baseOpts.scales, y:{...baseOpts.scales.y, type:'logarithmic', ticks:{...baseOpts.scales.y.ticks, callback:v=>v.toLocaleString()}}}}
+});
+</script>
