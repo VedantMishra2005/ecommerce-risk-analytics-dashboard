@@ -6,12 +6,9 @@ An interactive analytics dashboard built to analyze 12,000+ e-commerce orders wi
 
 # Live Dashboard
 
-🔗 Add your deployed GitHub Pages link here
+https://lnkd.in/gNEF9z9a
 
-Example:
-
-```txt
-https://yourusername.github.io/ecommerce-risk-analytics-dashboard/
+https://lnkd.in/gW5z3euR
 ```
 
 ---
